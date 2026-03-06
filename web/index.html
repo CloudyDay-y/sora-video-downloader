@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sora Video Downloader</title>
+    <style>
+      body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; margin: 0; background: #0b1020; color: #e8ecff; }
+      .wrap { max-width: 840px; margin: 36px auto; padding: 0 16px; }
+      .card { background: #111a33; border: 1px solid #25325f; border-radius: 12px; padding: 18px; }
+      input, button { width: 100%; box-sizing: border-box; padding: 10px 12px; border-radius: 10px; border: 1px solid #33457f; background: #0e1630; color: #e8ecff; font-size: 14px; }
+      button { cursor: pointer; background: #3559ff; border: none; font-weight: 600; }
+      button:disabled { opacity: .6; cursor: not-allowed; }
+      .row { margin-top: 12px; }
+      .hint { color: #9fb0e8; font-size: 13px; }
+      .log { margin-top: 14px; background: #0a1228; border-radius: 10px; padding: 12px; white-space: pre-wrap; font-size: 13px; min-height: 80px; }
+      .actions { display:flex; gap:10px; }
+      .actions button { width:auto; flex:1; }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <h2>Sora 视频下载器</h2>
+      <div class="card">
+        <div class="row">
+          <input id="shareUrl" placeholder="粘贴 Sora 分享页链接" />
+        </div>
+        <div class="row">
+          <input id="fileName" placeholder="文件名（可选）" value="sora_video" />
+        </div>
+        <div class="row actions">
+          <button id="extractBtn">提取并下载</button>
+        </div>
+        <div class="row hint">说明：粘贴 Sora 分享链接，自动提取视频地址并下载到你的电脑。</div>
+        <div id="log" class="log"></div>
+      </div>
+    </div>
+    <script type="module" src="/main.js"></script>
+  </body>
+</html>

@@ -1,0 +1,47 @@
+{
+  "name": "sora-video-downloader",
+  "version": "1.0.0",
+  "description": "Download Sora shared videos from a web UI or desktop app",
+  "main": "electron/main.cjs",
+  "type": "module",
+  "scripts": {
+    "dev:web": "node server/index.cjs",
+    "dev:electron": "concurrently -k \"npm:dev:web\" \"wait-on http://localhost:5178 && electron .\"",
+    "build:web": "vite build",
+    "start": "node server/index.cjs",
+    "pack:dir": "npm run build:web && electron-builder --dir",
+    "pack:mac": "npm run build:web && electron-builder --mac",
+    "pack:win": "npm run build:web && electron-builder --win"
+  },
+  "keywords": ["sora", "downloader", "electron"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.21.2",
+    "playwright": "^1.52.0"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2",
+    "electron": "^31.7.7",
+    "electron-builder": "^24.13.3",
+    "vite": "^5.4.10",
+    "wait-on": "^8.0.1"
+  },
+  "build": {
+    "appId": "com.dada.sora-video-downloader",
+    "productName": "Sora Video Downloader",
+    "files": ["electron/**/*", "server/**/*", "webdist/**/*", "web/**/*", "package.json"],
+    "asarUnpack": ["server/**/*", "webdist/**/*", "web/**/*", "node_modules/**/*"],
+    "extraMetadata": {"main": "electron/main.cjs"},
+    "mac": {
+      "target": ["dmg", "zip"],
+      "category": "public.app-category.video"
+    },
+    "win": {
+      "target": ["nsis", "zip"]
+    },
+    "directories": {
+      "buildResources": "build"
+    }
+  }
+}
