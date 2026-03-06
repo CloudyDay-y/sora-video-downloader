@@ -29,15 +29,33 @@ cd $APP_DIR
 npm install --ignore-scripts
 
 echo ""
-echo "=== 6. 安装 Playwright Chromium ==="
-npx playwright install --with-deps chromium
+echo "=== 6. 安装 Playwright 系统依赖 ==="
+if command -v apt-get &> /dev/null; then
+    npx playwright install-deps chromium
+elif command -v yum &> /dev/null; then
+    sudo yum install -y \
+        alsa-lib atk at-spi2-atk cups-libs libdrm libXcomposite \
+        libXdamage libXrandr mesa-libgbm pango nss nspr \
+        libXScrnSaver gtk3 ipa-gothic-fonts xorg-x11-fonts-100dpi \
+        xorg-x11-fonts-75dpi xorg-x11-fonts-misc xorg-x11-fonts-Type1
+elif command -v dnf &> /dev/null; then
+    sudo dnf install -y \
+        alsa-lib atk at-spi2-atk cups-libs libdrm libXcomposite \
+        libXdamage libXrandr mesa-libgbm pango nss nspr \
+        libXScrnSaver gtk3 ipa-gothic-fonts xorg-x11-fonts-100dpi \
+        xorg-x11-fonts-75dpi xorg-x11-fonts-misc xorg-x11-fonts-Type1
+fi
 
 echo ""
-echo "=== 7. 安装 pm2 ==="
+echo "=== 7. 安装 Playwright Chromium ==="
+npx playwright install chromium
+
+echo ""
+echo "=== 8. 安装 pm2 ==="
 sudo npm install -g pm2
 
 echo ""
-echo "=== 8. 配置 Nginx ==="
+echo "=== 9. 配置 Nginx ==="
 sudo cp deploy/nginx.conf /etc/nginx/conf.d/sora.conf 2>/dev/null || \
 sudo cp $APP_DIR/../sora-video-downloader/deploy/nginx.conf /etc/nginx/conf.d/sora.conf 2>/dev/null || \
 echo "请手动复制 deploy/nginx.conf 到 /etc/nginx/conf.d/sora.conf"
@@ -46,7 +64,7 @@ echo "请手动复制 deploy/nginx.conf 到 /etc/nginx/conf.d/sora.conf"
 sudo rm -f /etc/nginx/conf.d/default.conf
 
 echo ""
-echo "=== 9. 启动服务 ==="
+echo "=== 10. 启动服务 ==="
 cd $APP_DIR
 pm2 delete sora 2>/dev/null || true
 pm2 start server/index.mjs --name sora
@@ -56,12 +74,12 @@ sudo nginx -t && sudo systemctl restart nginx
 sudo systemctl enable nginx
 
 echo ""
-echo "=== 10. 防火墙放行 80 端口 ==="
+echo "=== 11. 防火墙放行 80 端口 ==="
 sudo firewall-cmd --permanent --add-service=http 2>/dev/null || true
 sudo firewall-cmd --reload 2>/dev/null || true
 
 echo ""
-echo "=== 11. 设置 pm2 开机自启 ==="
+echo "=== 12. 设置 pm2 开机自启 ==="
 pm2 startup systemd -u $(whoami) --hp $HOME 2>&1 | tail -1 | bash 2>/dev/null || true
 pm2 save
 
