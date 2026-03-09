@@ -2,6 +2,7 @@
 set -e
 
 APP_DIR="/opt/sora"
+PROJECT_DIR="$(pwd)"
 
 echo "=== 1. 安装 Node.js 20 ==="
 if ! command -v node &> /dev/null; then
@@ -32,33 +33,40 @@ echo ""
 echo "=== 6. 安装 Playwright 系统依赖 ==="
 if command -v apt-get &> /dev/null; then
     npx playwright install-deps chromium
-elif command -v yum &> /dev/null; then
-    sudo yum install -y \
-        alsa-lib atk at-spi2-atk cups-libs libdrm libXcomposite \
-        libXdamage libXrandr mesa-libgbm pango nss nspr \
-        libXScrnSaver gtk3 ipa-gothic-fonts xorg-x11-fonts-100dpi \
-        xorg-x11-fonts-75dpi xorg-x11-fonts-misc xorg-x11-fonts-Type1
 elif command -v dnf &> /dev/null; then
     sudo dnf install -y \
         alsa-lib atk at-spi2-atk cups-libs libdrm libXcomposite \
         libXdamage libXrandr mesa-libgbm pango nss nspr \
-        libXScrnSaver gtk3 ipa-gothic-fonts xorg-x11-fonts-100dpi \
+        libXScrnSaver gtk3 xorg-x11-fonts-100dpi \
+        xorg-x11-fonts-75dpi xorg-x11-fonts-misc xorg-x11-fonts-Type1
+elif command -v yum &> /dev/null; then
+    sudo yum install -y \
+        alsa-lib atk at-spi2-atk cups-libs libdrm libXcomposite \
+        libXdamage libXrandr mesa-libgbm pango nss nspr \
+        libXScrnSaver gtk3 xorg-x11-fonts-100dpi \
         xorg-x11-fonts-75dpi xorg-x11-fonts-misc xorg-x11-fonts-Type1
 fi
 
 echo ""
 echo "=== 7. 安装 Playwright Chromium ==="
+# 清除镜像设置，使用官方源确保文件存在
+unset PLAYWRIGHT_DOWNLOAD_HOST
 npx playwright install chromium
 
 echo ""
 echo "=== 8. 安装 pm2 ==="
 sudo npm install -g pm2
+# 创建软链接，确保 pm2 在 PATH 中可用
+sudo ln -sf /usr/local/lib/node_modules/pm2/bin/pm2 /usr/local/bin/pm2
+export PATH=$PATH:/usr/local/bin
 
 echo ""
 echo "=== 9. 配置 Nginx ==="
-sudo cp deploy/nginx.conf /etc/nginx/conf.d/sora.conf 2>/dev/null || \
-sudo cp $APP_DIR/../sora-video-downloader/deploy/nginx.conf /etc/nginx/conf.d/sora.conf 2>/dev/null || \
-echo "请手动复制 deploy/nginx.conf 到 /etc/nginx/conf.d/sora.conf"
+if [ -f "$PROJECT_DIR/deploy/nginx.conf" ]; then
+    sudo cp "$PROJECT_DIR/deploy/nginx.conf" /etc/nginx/conf.d/sora.conf
+else
+    echo "警告：未找到 nginx.conf，请手动复制到 /etc/nginx/conf.d/sora.conf"
+fi
 
 # 删掉默认配置避免冲突
 sudo rm -f /etc/nginx/conf.d/default.conf

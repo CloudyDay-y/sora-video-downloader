@@ -24,6 +24,8 @@ function sanitizeFileName(name = 'sora_video') {
  * 用 Playwright 无头 Chromium 打开分享页，拦截网络请求获取视频直链。
  */
 async function extractVideoUrl(shareUrl) {
+  const proxy = process.env.PROXY_URL || '';
+
   const browser = await chromium.launch({
     headless: true,
     args: [
@@ -32,6 +34,7 @@ async function extractVideoUrl(shareUrl) {
       '--disable-gpu',
       '--mute-audio',
     ],
+    ...(proxy ? { proxy: { server: proxy } } : {}),
   });
 
   const context = await browser.newContext({
